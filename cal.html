@@ -14,10 +14,12 @@ body { margin: 0; padding: 0; }
 #calframe td.alt { background-color: #cccccc; }
 #calframe td.firstDay { border-left: 3px solid black; }
 #calframe td.firstWeek { border-top: 3px solid black; }
+#calframe td.dayName { font-size: 8pt; text-align: center; vertical-align: middle; height: 0; }
   </style>
   <script type="text/javascript" src="date.js"></script>
   <script type="text/javascript">
 monthName = new Array( "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER" );
+dayName = new Array( "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY" );
 function hello() {
   alert("Hello!");
 }
@@ -31,6 +33,19 @@ function loadCalendar() {
   dt = getFirstMonday();
   mm = dt.getMonth();
   alt = false;
+
+  // add the day off the week headings
+  row = document.createElement("tr");
+  for ( d  = 0 ; d < 7 ; d++ ) {
+    cell = document.createElement("td");
+    label = document.createTextNode(dayName[d]);
+    cell.className = "dayName";
+    cell.appendChild(label);
+    row.appendChild(cell);
+  }
+  cf.appendChild(row);
+
+  // add the weeks
   for ( wk = 0 ; wk < 13 ; wk++ ) {
     row = document.createElement("tr");
     for ( d = 1 ; d <= 7 ; d++ ) {
