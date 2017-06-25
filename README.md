@@ -1,5 +1,6 @@
-# cal
+# Semester-at-a-Glance Printable Calendar
 
-A very crude printable 13-week calendar, starting with the 1st of the current month.
-
-By Michael Burkhardt
+This is a crude printable 13-week calendar. I originally
+created it because I wanted to be able to see the entire
+semester on one page. I've made some improvements, but it
+remains rather unsophisticated.

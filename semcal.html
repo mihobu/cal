@@ -4,52 +4,33 @@
   <meta charset=utf-8 />
   <title></title>
   <link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:700' rel='stylesheet' type='text/css' />
-  <style type="text/css"> <!-- media="screen" -->
-html { padding: 0; }
-body { margin: 0; padding: 0; }
-#calframe { border-collapse: collapse; border: 1px solid #999999; margin: 0 auto; }
-#calframe td { font-family: "Open Sans Condensed"; font-size: 18pt; color: #000000; padding: 0 4px; border: 1px solid #999999; background-color: #ffffff; width: 0.9in; height: 0.7in; text-align: right; vertical-align: top; }
-#calframe td div { font-size: 8pt; font-weight: normal; color: #000000; }
-#calframe td.wknd { background-color: #99ccff; color: #ffffff; }
-#calframe td.alt { background-color: #cccccc; }
-#calframe td.firstDay { border-left: 3px solid black; }
-#calframe td.firstWeek { border-top: 3px solid black; }
-#calframe td.dayName { font-size: 8pt; text-align: center; vertical-align: middle; height: 0; }
-#calframe td.weeknum { font-size: 8pt; text-align: center; vertical-align: middle; height: 0; width: 0; color: #990000; }
-  </style>
-  <script type="text/javascript" src="date.js"></script>
+  <link rel="stylesheet" type="text/css" href="semcal.css" />
+  <script type="text/javascript" src="date_fns.min.js"></script>
   <script type="text/javascript">
+
 monthName = new Array( "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER" );
 dayName = new Array( "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY" );
 
-function getFirstMonday() {
-  var first = Date.today().moveToFirstDayOfMonth();
-  var firstMonday = first.moveToDayOfWeek(1,-1);
-  return(firstMonday);
-}
 function loadCalendar() {
+  // PROMPT the user for a date. We'll construct a calendar such that
+  // this date falls in the first displayed week.
+  now = new Date();
+  nowS = dateFns.format(now, 'MMM D, YYYY')
+  dts = prompt("Enter a date in the first week [DEFAULT=" + nowS + "]");
+  if ( dts == "" ) { dts = nowS; }
+  dt = dateFns.startOfWeek(dts, {weekStartsOn:1})
+  firstWeek = dateFns.getISOWeek(dts);
 
-  // CUSTOMIZE HERE
-  dt = Date.parse("January 11, 2016");
-  firstWeek = 1;
+  // HTML ELEMENTS
+  cf = document.getElementById("calframe"); // get the existing <table> element
+  row = document.createElement("tr");       // add the day-of-week header row
+  cell = document.createElement("td");      // add week number cell
+  row.appendChild(cell);                    // append (unused) week number cell to row
+  cell.className = "weeknum";               // class name for CSS formatting
+  label = document.createTextNode("");      // create a new label element
+  cell.appendChild(label);                  // append label to cell
 
-  // ... OR USE THE DEFAULTS HERE:
-  //dt = getFirstMonday();
-
-  cf = document.getElementById("calframe");
-  mm = dt.getMonth();
-  alt = false;
-
-  // add the day off the week headings
-  row = document.createElement("tr");
-
-  // Add the (empty) week number header cell
-  cell = document.createElement("td");
-  row.appendChild(cell);
-  cell.className = "weeknum";
-  label = document.createTextNode("");
-  cell.appendChild(label);
-
+  // BUILD DAY-OF-WEEK HEADER CELLS
   for ( d  = 0 ; d < 7 ; d++ ) {
     cell = document.createElement("td");
     label = document.createTextNode(dayName[d]);
@@ -59,58 +40,67 @@ function loadCalendar() {
   }
   cf.appendChild(row);
 
-  // add the weeks
+  // ADD 16 WEEKS TO THE CALENDAR
+  curDate = dateFns.addDays(dt, -1); // day before the first calendar day
   for ( wk = 0 ; wk < 16 ; wk++ ) {
-    row = document.createElement("tr");
-    cf.appendChild(row);
+    row = document.createElement("tr");   // create new row
+    cf.appendChild(row);                  // append this row to the table
 
     // add the week number
     cell = document.createElement("td");
     row.appendChild(cell);
-    weeklabel = document.createTextNode(wk+firstWeek);
+    tmpDate = dateFns.addDays(dt, wk*7)
+    curISOWeek = dateFns.getISOWeek(tmpDate);
+    weeklabel = document.createTextNode(curISOWeek);
     cell.appendChild(weeklabel);
     cell.classList.add("weeknum");
 
+    // add the seven days of the week to this row
+    alt = false; // used to alternate month colors
+    monthIndex = 0; // (future use) we might want to color each month differently
+    for ( curDayOfWeek = 0 ; curDayOfWeek < 7 ; curDayOfWeek++ ) {
+      curDate = dateFns.addDays(curDate, 1);
+      curDayOfYear = dateFns.getDayOfYear(curDate);
+      curDayOfMonth  = dateFns.getDate(curDate); // day of the month (1-31)
 
-    for ( d = 1 ; d <= 7 ; d++ ) {
-      dd = dt.getDate();
-      // create a new table cell and append to the current row
-      cell = document.createElement("td");
-      if ( d >= 6 ) {
-        // weekend; trumps alternate
-        cell.className = "wknd";
+      cell = document.createElement("td"); // new cell (one day)
+
+      // style the cell
+      if ( curDayOfWeek > 4 ) {
+        cell.className = "wknd"; // weekends get their own style
       }
       else if ( alt ) {
-        // set alternate cell style
-        cell.className = "alt";
+        cell.className = "alt"; // alternating month colors
       }
-      if ( dd == 1 ) {
+
+      // additional style for first day of the month (heavy left border)
+      if ( curDayOfMonth == 1 ) {
         cell.classList.add("firstDay");
       }
-      if ( dd >= 1 && dd <= 7 ) {
+
+      // additional style for first week of the month (heavy top border)
+      if ( curDayOfMonth >= 1 && curDayOfMonth <= 7 ) {
         cell.classList.add("firstWeek");
       }
+
+      // append this cell to the row
       row.appendChild(cell);
 
       // create a new text node and append to the current cell
-      labelStr = dt.getDate();
-      label = document.createTextNode(dt.getDate());
+      if ( curDayOfMonth == 1 || dateFns.isEqual(curDate, dt) ) {
+        labelStr = dateFns.format(curDate, 'MMM D');
+      }
+      else {
+        labelStr = dateFns.format(curDate, 'D');
+      }
+      label = document.createTextNode(labelStr);
       cell.appendChild(label);
-      if ( dd == 1 ) {
-        monthLabel = document.createElement("div");
-        labelStr = document.createTextNode(monthName[mm]);
-        monthLabel.appendChild(labelStr);
-        cell.appendChild(monthLabel);
-      }
 
-      // advance the date
-      dt = dt.add(1).days();
-      mm2 = dt.getMonth();
-      if ( mm != mm2 ) {
-        // the month changed
-        alt = !alt;
-        mm = mm2;
-      }
+      // append the day number of the year
+      dayNumberDiv = document.createElement("div");
+      dayNumberStr = document.createTextNode(curDayOfYear);
+      dayNumberDiv.appendChild(dayNumberStr);
+      cell.appendChild(dayNumberDiv);
     }
   }
 }

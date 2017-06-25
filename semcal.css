@@ -1,0 +1,11 @@
+html { padding: 0; }
+body { margin: 0; padding: 0; }
+#calframe { border-collapse: collapse; border: 1px solid #999999; margin: 0 auto; }
+#calframe td { font-family: "Open Sans Condensed"; font-size: 18pt; color: #000000; padding: 0 4px; border: 1px solid #999999; background-color: #ffffff; width: 0.9in; height: 0.7in; text-align: right; vertical-align: top; }
+#calframe td div { font-size: 8pt; font-weight: normal; color: #000000; }
+#calframe td.wknd { background-color: #99ccff; color: #ffffff; }
+#calframe td.alt { background-color: #ffffff; }
+#calframe td.firstDay { border-left: 3px solid black; }
+#calframe td.firstWeek { border-top: 3px solid black; }
+#calframe td.dayName { font-size: 8pt; text-align: center; vertical-align: middle; height: 0; }
+#calframe td.weeknum { font-size: 8pt; text-align: center; vertical-align: middle; height: 0; width: 0; color: #990000; }
